@@ -19,6 +19,36 @@ class PieceQueue {
       this.pieces.enqueue(piece);
     }
 
+    const frontPiece = this.pieces.peek();
+    const img = document.createElement("img");
+    img.classList.add("queue-piece");
+
+    switch (frontPiece.type) {
+      case "square":
+        img.src = "./images/pieces/Square piece.png";
+        break;
+      case "line":
+        img.src = "./images/pieces/Line piece.png";
+        break;
+      case "z":
+        img.src = "./images/pieces/Z piece.png";
+        break;
+      case "z-reverse":
+        img.src = "./images/pieces/Z piece inverted.png";
+        break;
+      case "l":
+        img.src = "./images/pieces/L piece.png";
+        break;
+      case "l-reverse":
+        img.src = "./images/pieces/L piece inverted.png";
+        break;
+      case "t":
+        img.src = "./images/pieces/T piece.png";
+        break;
+    }
+
+    pieceQueue.appendChild(img);
+
     console.log(this.pieces);
   }
 
@@ -28,6 +58,35 @@ class PieceQueue {
       const type = piece.getRandomType();
       piece.type = type;
       this.pieces.enqueue(piece);
+    }
+  }
+
+  drawFrontPiece() {
+    const frontPiece = this.pieces.peek();
+    const img = document.getElementsByClassName("queue-piece");
+
+    switch (frontPiece.type) {
+      case "square":
+        img.src = "./images/pieces/Square piece.png";
+        break;
+      case "line":
+        img.src = "./images/pieces/Line piece.png";
+        break;
+      case "z":
+        img.src = "./images/pieces/Z piece.png";
+        break;
+      case "z-reverse":
+        img.src = "./images/pieces/Z piece inverted.png";
+        break;
+      case "l":
+        img.src = "./images/pieces/L piece.png";
+        break;
+      case "l-reverse":
+        img.src = "./images/pieces/L piece inverted.png";
+        break;
+      case "t":
+        img.src = "./images/pieces/T piece.png";
+        break;
     }
   }
 

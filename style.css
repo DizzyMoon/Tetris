@@ -14,6 +14,39 @@ body {
   border: 1px solid rgb(88, 88, 88);
 }
 
+.square .yellow {
+  background-color: yellow;
+}
+
+.square .cyan {
+  background-color: cyan;
+}
+
+.square .red {
+  background-color: red;
+}
+
+.square .green {
+  background-color: green;
+}
+
+.square .orange {
+  background-color: orange;
+}
+
+.square .pink {
+  background-color: pink;
+}
+
+.square .purple {
+  background-color: purple;
+}
+
+.queue-piece {
+  max-width: 90px;
+  display: block;
+}
+
 .col {
   padding-right: 0;
   padding-left: 0;
@@ -22,7 +55,7 @@ body {
 #grid-container {
   position: absolute;
   padding-top: 10%;
-  left: 40%;
+  left: 45%;
   width: 100%;
 
   height: 17%;
@@ -33,13 +66,13 @@ body {
   position: absolute;
   padding-top: 15%;
   margin-right: 30%;
+  top: 0;
+  left: 60;
   z-index: 1;
-  height: 6%;
-  width: 6%;
+  height: 20%;
 }
 
 .piece-queue {
-  padding-top: 100%;
   background-color: rgb(2, 2, 66);
   border: 5px solid rgb(59, 59, 59);
   border-radius: 25px;
