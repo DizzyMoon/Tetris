@@ -1,0 +1,46 @@
+body {
+  background-color: grey;
+}
+
+#game {
+  position: relative;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.square {
+  padding-top: 100%;
+  background-color: rgb(20, 20, 20);
+  border: 1px solid rgb(88, 88, 88);
+}
+
+.col {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+#grid-container {
+  position: absolute;
+  padding-top: 10%;
+  left: 40%;
+  width: 100%;
+
+  height: 17%;
+  width: 17%;
+}
+
+#queue-container {
+  position: absolute;
+  padding-top: 15%;
+  margin-right: 30%;
+  z-index: 1;
+  height: 6%;
+  width: 6%;
+}
+
+.piece-queue {
+  padding-top: 100%;
+  background-color: rgb(2, 2, 66);
+  border: 5px solid rgb(59, 59, 59);
+  border-radius: 25px;
+}
