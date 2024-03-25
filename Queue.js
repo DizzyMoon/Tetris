@@ -21,4 +21,10 @@ class Queue {
   get printQueue() {
     return this.items;
   }
+
+  get length() {
+    return this.backIndex - this.frontIndex;
+  }
 }
+
+export default Queue;

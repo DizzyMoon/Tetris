@@ -5,7 +5,7 @@ import PieceQueue from "./PieceQueue.js";
 
 window.addEventListener("DOMContentLoaded", start);
 
-let fallSpeed;
+let fallSpeed = 1;
 
 function start() {
   const grid = new Grid();
