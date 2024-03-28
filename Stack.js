@@ -35,3 +35,5 @@ class Stack {
     this.items = [];
   }
 }
+
+export default Stack;
