@@ -34,6 +34,6 @@ class Stack {
   clear() {
     this.items = [];
   }
-}
+}//test
 
 export default Stack;
