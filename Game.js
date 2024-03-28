@@ -1,7 +1,7 @@
 import Grid from "./Grid.js";
 import PieceQueue from "./PieceQueue.js";
 
-("use strict");
+"use strict";
 
 class Game {
   constructor() {}
@@ -12,9 +12,13 @@ class Game {
     const grid = new Grid();
     const pieceQueue = new PieceQueue();
 
-    grid.createGrid();
-    grid.drawGrid("grid-container");
     pieceQueue.init();
+
+    // next piece from the queue piece
+    const nextPieceType = pieceQueue.getNextPieceType();
+
+    grid.createGrid();
+    grid.drawGrid("grid-container", nextPieceType);
   }
 }
 

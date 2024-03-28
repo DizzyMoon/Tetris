@@ -14,34 +14,6 @@ body {
   border: 1px solid rgb(88, 88, 88);
 }
 
-.square .yellow {
-  background-color: yellow;
-}
-
-.square .cyan {
-  background-color: cyan;
-}
-
-.square .red {
-  background-color: red;
-}
-
-.square .green {
-  background-color: green;
-}
-
-.square .orange {
-  background-color: orange;
-}
-
-.square .pink {
-  background-color: pink;
-}
-
-.square .purple {
-  background-color: purple;
-}
-
 .queue-piece {
   max-width: 90px;
   display: block;

@@ -93,6 +93,10 @@ class PieceQueue {
   dequeue() {
     this.pieces.dequeue();
   }
+
+  getNextPieceType() {
+    return this.pieces.peek().type;
+  }
 }
 
 export default PieceQueue;
