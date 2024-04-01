@@ -1,24 +1,40 @@
 import Grid from "./Grid.js";
 import PieceQueue from "./PieceQueue.js";
 
-"use strict";
+("use strict");
 
 class Game {
   constructor() {}
 
-  tickSpeed = 1;
+  tickSpeed = 500;
+  grid = new Grid();
+  pieceQueue = new PieceQueue();
 
   start() {
-    const grid = new Grid();
-    const pieceQueue = new PieceQueue();
-
-    pieceQueue.init();
-
     // next piece from the queue piece
-    const nextPieceType = pieceQueue.getNextPieceType();
+    this.pieceQueue.drawQueue();
+    const nextPieceType = this.pieceQueue.getNextPieceType();
 
-    grid.createGrid();
-    grid.drawGrid("grid-container", nextPieceType);
+    this.grid.createGrid();
+    this.grid.insertNewPiece(nextPieceType);
+    this.pieceQueue.dequeue();
+
+    this.gameLoop = setInterval(() => {
+      this.update();
+    }, this.tickSpeed);
+  }
+
+  update() {
+    this.grid.drawGrid("grid-container");
+    this.grid.moveCurrentPieceDown();
+    if (this.grid.newPieceReady) {
+      this.pieceQueue.drawQueue();
+      const nextPieceType = this.pieceQueue.getNextPieceType();
+      this.grid.insertNewPiece(nextPieceType);
+      this.pieceQueue.dequeue();
+      this.grid.newPieceReady = false;
+    }
+    console.log(this.grid);
   }
 }
 

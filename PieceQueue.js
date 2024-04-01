@@ -6,8 +6,9 @@ class PieceQueue {
     this.pieces = new Queue();
   }
 
-  init() {
+  drawQueue() {
     const queueContainer = document.getElementById("queue-container");
+    queueContainer.innerHTML = "";
     const pieceQueue = document.createElement("div");
     pieceQueue.classList.add("piece-queue");
     queueContainer.appendChild(pieceQueue);
@@ -48,12 +49,10 @@ class PieceQueue {
     }
 
     pieceQueue.appendChild(img);
-
-    console.log(this.pieces);
   }
 
   run() {
-    while (this.pieces.length < 10) {
+    if (this.pieces.length < 10) {
       let piece = new Piece();
       const type = piece.getRandomType();
       piece.type = type;

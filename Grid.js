@@ -3,16 +3,54 @@ class Grid {
     this.item = {};
     this.frontIndex = 0;
     this.backIndex = 0;
+    this.rows = rows;
+    this.columns = columns;
     this.grid = this.createGrid(rows, columns);
+    this.newPieceReady = false;
     // piece shapes
     this.pieceShapes = {
-      "square": [[0, 4], [0, 5], [1, 4], [1, 5]],
-      "line": [[0, 4], [1, 4], [2, 4], [3, 4]],
-      "z": [[0, 3], [0, 4], [1, 4], [1, 5]],
-      "zReverse": [[0, 4], [0, 5], [1, 3], [1, 4]],
-      "l": [[0, 4], [1, 4], [2, 4], [2, 5]],
-      "lReverse": [[0, 4], [1, 4], [2, 4], [2, 3]],
-      "t": [[0, 3], [0, 4], [0, 5], [1, 4]]
+      square: [
+        [4, 0],
+        [5, 0],
+        [4, 1],
+        [5, 1],
+      ],
+      line: [
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [4, 3],
+      ],
+      z: [
+        [3, 0],
+        [4, 0],
+        [4, 1],
+        [5, 1],
+      ],
+      "z-reverse": [
+        [4, 0],
+        [5, 0],
+        [3, 1],
+        [4, 1],
+      ],
+      l: [
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [5, 2],
+      ],
+      "l-reverse": [
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [3, 2],
+      ],
+      t: [
+        [3, 0],
+        [4, 0],
+        [5, 0],
+        [4, 1],
+      ],
     };
   }
 
@@ -24,13 +62,9 @@ class Grid {
     return grid;
   }
 
-  drawGrid(containerId, nextPieceType) {
+  drawGrid(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = "";
-
-    // Get the shape of the next piece type
-    const pieceShape = this.pieceShapes[nextPieceType];
-    const colorClass = this.getColorClass(nextPieceType);
 
     this.grid.forEach((row, rowIndex) => {
       const newRow = document.createElement("div");
@@ -46,25 +80,167 @@ class Grid {
         const newSquare = document.createElement("div");
         newSquare.classList.add("square");
 
-        // Check if the current cell is part of the piece shape
-        if (pieceShape && pieceShape.some(([r, c]) => r === rowIndex && c === colIndex)) {
-          newSquare.style.backgroundColor = colorClass;
+        //console.log(col);
+
+        if (col !== null) {
+          newSquare.style.backgroundColor = col.color;
+          if (col.current) {
+            newSquare.classList.add("current");
+          } else {
+            newSquare.classList.remove("current");
+          }
         }
 
+        // Check if the current cell is part of the piece shape
+        /*
+        if (
+          pieceShape &&
+          pieceShape.some(([r, c]) => r === rowIndex && c === colIndex)
+        ) {
+          this.replaceElement(rowIndex, colIndex, "current");
+          newSquare.classList.add("current-piece");
+          newSquare.style.backgroundColor = colorClass;
+        }
+        */
+
         newCol.appendChild(newSquare);
+        //console.log(this.grid);
       });
+    });
+  }
+
+  insertNewPiece(nextPieceType) {
+    const pieceShape = this.pieceShapes[nextPieceType];
+    const color = this.getColorClass(nextPieceType);
+
+    pieceShape.forEach((cell) => {
+      const col = cell.at(0);
+      const row = cell.at(1);
+      let piece = {
+        color: color,
+        type: nextPieceType,
+        current: true,
+        position: [],
+      };
+
+      piece.position.push(col);
+      piece.position.push(row);
+
+      this.replaceElement(row, col, piece);
+    });
+  }
+
+  replaceElement(row, column, newValue) {
+    // Check if the provided indices are within the grid bounds
+    if (
+      row >= 0 &&
+      row < this.grid.length &&
+      column >= 0 &&
+      column < this.grid[0].length
+    ) {
+      this.grid[row][column] = newValue;
+    } else {
+      console.error("Indices are out of bounds.");
+    }
+
+    this.drawGrid("grid-container");
+  }
+
+  areAnyOutOfBounds(pieces) {
+    let outOfBounds = false;
+
+    pieces.forEach((piece) => {
+      const newColPos = piece.position[0];
+      const newRowPos = piece.position[1] + 1;
+
+      if (newColPos >= this.columns || newColPos < 0) {
+        outOfBounds = true;
+      }
+      if (newRowPos >= this.rows || newRowPos < 0) {
+        outOfBounds = true;
+      }
+
+      console.log(this.grid[newColPos][newRowPos]);
+
+      if (
+        this.grid[newRowPos] &&
+        this.grid[newRowPos][newColPos] &&
+        this.grid[newRowPos][newColPos] !== null &&
+        this.grid[newRowPos][newColPos].hasOwnProperty("current") &&
+        !this.grid[newRowPos][newColPos].current
+      ) {
+        outOfBounds = true;
+      }
+    });
+    return outOfBounds;
+  }
+
+  changeNewCurrentPiece(pieceList) {
+    pieceList.forEach((piece) => {
+      const newPiece = {
+        color: piece.color,
+        type: piece.type,
+        current: false,
+        position: piece.position,
+      };
+
+      this.replaceElement(piece.position[1], piece.position[0], newPiece);
+    });
+
+    this.newPieceReady = true;
+  }
+
+  moveCurrentPieceDown() {
+    let pieceList = [];
+    this.grid.forEach((row) => {
+      row.forEach((col) => {
+        if (col !== null && col.current) {
+          pieceList.push(col);
+        }
+      });
+    });
+
+    if (this.areAnyOutOfBounds(pieceList)) {
+      this.changeNewCurrentPiece(pieceList);
+      return;
+    }
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+      this.replaceElement(rowPos, colPos, null);
+    });
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+
+      const newColPos = colPos;
+      const newRowPos = rowPos + 1;
+
+      if (newRowPos < this.grid.length) {
+        const newPos = [newColPos, newRowPos];
+
+        let newPiece = {
+          color: piece.color,
+          type: piece.type,
+          current: piece.current,
+          position: newPos,
+        };
+        this.replaceElement(newRowPos, newColPos, newPiece);
+      }
     });
   }
 
   getColorClass(pieceType) {
     const pieceColors = {
-      "square": "#FFFF44",
-      "line": "#44FFFF",
-      "z": "#44FF44",
-      "zReverse": "#FF4545",
-      "l": "#FF8800",
-      "lReverse": "#E561EE",
-      "t": "#970096"
+      square: "#FFFF44",
+      line: "#44FFFF",
+      z: "#44FF44",
+      "z-reverse": "#FF4545",
+      l: "#FF8800",
+      "l-reverse": "#E561EE",
+      t: "#970096",
     };
 
     if (pieceColors.hasOwnProperty(pieceType)) {
