@@ -255,6 +255,111 @@ class Grid {
   clearPiece(row, column) {
     this.grid[row][column] = null;
   }
+
+  getCurrentPiece() {
+    let pieceList = [];
+    this.grid.forEach((row) => {
+      row.forEach((col) => {
+        if (col !== null && col.current) {
+          pieceList.push(col);
+        }
+      });
+    });
+    return pieceList;
+  }
+
+  moveCurrentPieceToLeft() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) return;
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+      this.replaceElement(rowPos, colPos, null);
+    });
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+
+      const newColPos = colPos - 1;
+      const newRowPos = rowPos;
+
+      if (newColPos >= 0) {
+        const newPos = [newColPos, newRowPos];
+
+        let newPiece = {
+          color: piece.color,
+          type: piece.type,
+          current: piece.current,
+          position: newPos,
+        };
+        this.replaceElement(newRowPos, newColPos, newPiece);
+      }
+    });
+  }
+
+  moveCurrentPieceToRight() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) return;
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+      this.replaceElement(rowPos, colPos, null);
+    });
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+
+      const newColPos = colPos + 1;
+      const newRowPos = rowPos;
+
+      if (newColPos < this.columns) {
+        const newPos = [newColPos, newRowPos];
+
+        let newPiece = {
+          color: piece.color,
+          type: piece.type,
+          current: piece.current,
+          position: newPos,
+        };
+        this.replaceElement(newRowPos, newColPos, newPiece);
+      }
+    });
+  }
+
+  moveCurrentPieceToDown() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) return;
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+      this.replaceElement(rowPos, colPos, null);
+    });
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const rowPos = piece.position[1];
+
+      const newColPos = colPos;
+      const newRowPos = rowPos + 1;
+
+      if (newRowPos < this.rows) {
+        const newPos = [newColPos, newRowPos];
+
+        let newPiece = {
+          color: piece.color,
+          type: piece.type,
+          current: piece.current,
+          position: newPos,
+        };
+        this.replaceElement(newRowPos, newColPos, newPiece);
+      }
+    });
+  }
 }
 
 export default Grid;

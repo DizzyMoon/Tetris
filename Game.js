@@ -4,13 +4,14 @@ import PieceQueue from "./PieceQueue.js";
 ("use strict");
 
 class Game {
-  constructor() {}
+  constructor() { }
 
   tickSpeed = 500;
   grid = new Grid();
   pieceQueue = new PieceQueue();
 
   start() {
+    this.initControls();
     // next piece from the queue piece
     this.pieceQueue.drawQueue();
     const nextPieceType = this.pieceQueue.getNextPieceType();
@@ -35,6 +36,23 @@ class Game {
       this.grid.newPieceReady = false;
     }
     console.log(this.grid);
+  }
+
+  // keyboard input arrow keys 
+  initControls() {
+    document.addEventListener("keydown", (event) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          this.grid.moveCurrentPieceToLeft();
+          break;
+        case "ArrowRight":
+          this.grid.moveCurrentPieceToRight();
+          break;
+        case "ArrowDown":
+          this.grid.moveCurrentPieceToDown();
+          break;
+      }
+    });
   }
 }
 
