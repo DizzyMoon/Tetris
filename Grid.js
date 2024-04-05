@@ -218,7 +218,7 @@ class Grid {
       const newColPos = colPos;
       const newRowPos = rowPos + 1;
 
-      if (newRowPos < this.grid.length) {
+      if (newRowPos <= this.grid.length) {
         const newPos = [newColPos, newRowPos];
 
         let newPiece = {
@@ -268,26 +268,39 @@ class Grid {
     return pieceList;
   }
 
+  canMoveLeft() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) return;
+    let canMove = true;
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const newRowPos = piece.position[1];
+      const newColPos = colPos - 1;
+      if (newColPos < 0) {
+        canMove = false;
+      }
+
+      if (this.isOccupied(newColPos, newRowPos)) {
+        canMove = false;
+      }
+    });
+    return canMove;
+  }
+
   moveCurrentPieceToLeft() {
     const pieceList = this.getCurrentPiece();
     if (!pieceList) return;
 
-    pieceList.forEach((piece) => {
-      const colPos = piece.position[0];
-      const rowPos = piece.position[1];
-      this.replaceElement(rowPos, colPos, null);
-    });
-
-    pieceList.forEach((piece) => {
-      const colPos = piece.position[0];
-      const rowPos = piece.position[1];
-
-      const newColPos = colPos - 1;
-      const newRowPos = rowPos;
-
-      if (newColPos >= 0) {
+    if (this.canMoveLeft()) {
+      pieceList.forEach((piece) => {
+        const colPos = piece.position[0];
+        const rowPos = piece.position[1];
+        const newColPos = colPos - 1;
+        const newRowPos = rowPos;
         const newPos = [newColPos, newRowPos];
 
+        this.replaceElement(rowPos, colPos, null);
         let newPiece = {
           color: piece.color,
           type: piece.type,
@@ -295,30 +308,49 @@ class Grid {
           position: newPos,
         };
         this.replaceElement(newRowPos, newColPos, newPiece);
+      });
+    } else {
+      return;
+    }
+  }
+
+  canMoveRight() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) return;
+    let canMove = true;
+
+    pieceList.forEach((piece) => {
+      const colPos = piece.position[0];
+      const newColPos = colPos + 1;
+      const newRowPos = piece.position[1];
+      if (newColPos > this.columns - 1) {
+        canMove = false;
+      }
+
+      if (this.isOccupied(newColPos, newRowPos)) {
+        canMove = false;
       }
     });
+    return canMove;
   }
 
   moveCurrentPieceToRight() {
     const pieceList = this.getCurrentPiece();
     if (!pieceList) return;
 
-    pieceList.forEach((piece) => {
-      const colPos = piece.position[0];
-      const rowPos = piece.position[1];
-      this.replaceElement(rowPos, colPos, null);
-    });
+    if (this.canMoveRight()) {
+      pieceList.forEach((piece) => {
+        const colPos = piece.position[0];
+        const rowPos = piece.position[1];
 
-    pieceList.forEach((piece) => {
-      const colPos = piece.position[0];
-      const rowPos = piece.position[1];
-
-      const newColPos = colPos + 1;
-      const newRowPos = rowPos;
-
-      if (newColPos < this.columns) {
+        this.replaceElement(rowPos, colPos, null);
+      });
+      pieceList.forEach((piece) => {
+        const colPos = piece.position[0];
+        const rowPos = piece.position[1];
+        const newColPos = colPos + 1;
+        const newRowPos = rowPos;
         const newPos = [newColPos, newRowPos];
-
         let newPiece = {
           color: piece.color,
           type: piece.type,
@@ -326,30 +358,61 @@ class Grid {
           position: newPos,
         };
         this.replaceElement(newRowPos, newColPos, newPiece);
+      });
+    } else {
+      return;
+    }
+  }
+
+  isOccupied(col, row) {
+    return (
+      this.grid[row] &&
+      this.grid[row][col] &&
+      this.grid[row][col] !== null &&
+      this.grid[row][col].hasOwnProperty("current") &&
+      !this.grid[row][col].current
+    );
+  }
+
+  canMoveDown() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) return;
+    let canMove = true;
+
+    pieceList.forEach((piece) => {
+      const rowPos = piece.position[1];
+      const colPos = piece.position[0];
+      const newColPos = colPos;
+      const newRowPos = rowPos + 1;
+
+      if (newRowPos > this.rows - 1) {
+        canMove = false;
+      }
+
+      if (this.isOccupied(newColPos, newRowPos)) {
+        canMove = false;
       }
     });
+    return canMove;
   }
 
   moveCurrentPieceToDown() {
     const pieceList = this.getCurrentPiece();
     if (!pieceList) return;
 
-    pieceList.forEach((piece) => {
-      const colPos = piece.position[0];
-      const rowPos = piece.position[1];
-      this.replaceElement(rowPos, colPos, null);
-    });
+    if (this.canMoveDown()) {
+      pieceList.forEach((piece) => {
+        const colPos = piece.position[0];
+        const rowPos = piece.position[1];
 
-    pieceList.forEach((piece) => {
-      const colPos = piece.position[0];
-      const rowPos = piece.position[1];
-
-      const newColPos = colPos;
-      const newRowPos = rowPos + 1;
-
-      if (newRowPos < this.rows) {
+        this.replaceElement(rowPos, colPos, null);
+      });
+      pieceList.forEach((piece) => {
+        const colPos = piece.position[0];
+        const rowPos = piece.position[1];
+        const newColPos = colPos;
+        const newRowPos = rowPos + 1;
         const newPos = [newColPos, newRowPos];
-
         let newPiece = {
           color: piece.color,
           type: piece.type,
@@ -357,8 +420,10 @@ class Grid {
           position: newPos,
         };
         this.replaceElement(newRowPos, newColPos, newPiece);
-      }
-    });
+      });
+    } else {
+      return;
+    }
   }
 }
 
