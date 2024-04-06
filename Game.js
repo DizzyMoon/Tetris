@@ -19,6 +19,7 @@ class Game {
     this.grid.createGrid();
     this.grid.insertNewPiece(nextPieceType);
     this.pieceQueue.dequeue();
+    this.pieceQueue.drawQueue();
 
     this.gameLoop = setInterval(() => {
       this.update();
@@ -29,10 +30,10 @@ class Game {
     this.grid.drawGrid("grid-container");
     this.grid.moveCurrentPieceDown();
     if (this.grid.newPieceReady) {
-      this.pieceQueue.drawQueue();
       const nextPieceType = this.pieceQueue.getNextPieceType();
       this.grid.insertNewPiece(nextPieceType);
       this.pieceQueue.dequeue();
+      this.pieceQueue.drawQueue();
       this.grid.newPieceReady = false;
     }
   }
