@@ -14,10 +14,21 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon.ico" />
   </head>
   <body>
-    <div id="game">
+    <div id="menu-container">
+      <img class="logo" src="./images/Logo.png" />
+      <button class="button-32" type="button">Start</button>
+    </div>
+    <div id="game" class="hidden">
       <div id="queue-container"></div>
+      <div id="stats-container"></div>
       <div id="grid-container" class="container text-center"></div>
     </div>
+    <div id="game-over" class="hidden">
+      <p>GAME OVER</p>
+    </div>
     <script src="script.js" type="module"></script>
+    <audio id="theme" class="hidden" controls preload="none">
+      <source src="./audio/Tetris theme.mp3" type="audio/mpeg" />
+    </audio>
   </body>
 </html>

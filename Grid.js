@@ -7,7 +7,9 @@ class Grid {
     this.columns = columns;
     this.grid = this.createGrid(rows, columns);
     this.newPieceReady = false;
-    this.readyToClear = false;
+    this.gameOver = false;
+    this.totalClearedLines = 0;
+    this.lastClearedLine = 0;
     this.pieceShapes = {
       square: [
         [4, 0],
@@ -62,6 +64,41 @@ class Grid {
     return grid;
   }
 
+  gameOverAnimation(callback) {
+    let animation;
+    let i = this.grid.length - 1;
+    let j = this.grid[i].length - 1;
+
+    const animate = () => {
+      const newPiece = {
+        color: "#850101",
+        type: "l",
+        current: false,
+        position: [j, i],
+      };
+      this.replaceElement(newPiece.position[1], newPiece.position[0], newPiece);
+
+      if (j > 0) {
+        j--;
+      } else {
+        j = this.grid[i].length - 1;
+        i--;
+      }
+
+      if (i < 0) {
+        clearInterval(animation);
+        console.log("Animation done :)");
+        // Call the callback function when animation is complete
+        if (callback && typeof callback === "function") {
+          callback();
+        }
+      }
+    };
+
+    animate();
+    animation = setInterval(animate, 1);
+  }
+
   drawGrid(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = "";
@@ -95,7 +132,9 @@ class Grid {
   }
 
   insertNewPiece(nextPieceType) {
+    this.lastClearedLine = 0;
     if (this.checkForLines()) {
+      this.lastClearedLine++;
       this.clearLines();
       this.moveNonCurrentsDown();
     }
@@ -115,8 +154,13 @@ class Grid {
       piece.position.push(col);
       piece.position.push(row);
 
+      if (this.grid[row][col] !== null) {
+        this.gameOver = true;
+      }
       this.replaceElement(row, col, piece);
     });
+
+    return this.lastClearedLine;
   }
 
   replaceElement(row, column, newValue) {
@@ -481,6 +525,7 @@ class Grid {
 
     if (this.checkForLines()) {
       this.clearLines();
+      this.lastClearedLine++;
       this.moveNonCurrentsDown();
     }
   }
@@ -512,31 +557,32 @@ class Grid {
   }
 
   clearLines() {
+    let numberOfLines = 0;
+
     for (let i = 0; i < this.grid.length; i++) {
       const row = this.grid[i];
       let lineCompleted = true;
       for (let j = 0; j < row.length; j++) {
         if (row[j] === null) {
           lineCompleted = false;
-          break; // If any cell in the row is null, move to the next row
+          break;
         }
       }
       if (lineCompleted) {
-        // Clear the completed row
+        numberOfLines++;
         for (let j = 0; j < row.length; j++) {
           this.grid[i][j] = null;
         }
-        // Move all rows above the completed row down by 1
         for (let k = i; k > 0; k--) {
           this.grid[k] = this.grid[k - 1];
         }
-        // Insert a new empty row at the top
         this.grid[0] = Array(this.columns).fill(null);
-        // Redraw the grid
         this.drawGrid("grid-container");
-        break; // Since only one line can be cleared at a time, exit the loop
+        break;
       }
     }
+
+    this.totalClearedLines += numberOfLines; // Accumulate the count of cleared lines
   }
 
   moveCurrentPieceToDown() {
