@@ -4,7 +4,7 @@ import PieceQueue from "./PieceQueue.js";
 ("use strict");
 
 class Game {
-  constructor() { }
+  constructor() {}
 
   tickSpeed = 500;
   grid = new Grid();
@@ -35,10 +35,9 @@ class Game {
       this.pieceQueue.dequeue();
       this.grid.newPieceReady = false;
     }
-    console.log(this.grid);
   }
 
-  // keyboard input arrow keys 
+  // keyboard input arrow keys
   initControls() {
     document.addEventListener("keydown", (event) => {
       switch (event.key) {
@@ -50,6 +49,9 @@ class Game {
           break;
         case "ArrowDown":
           this.grid.moveCurrentPieceToDown();
+          break;
+        case "ArrowUp":
+          this.grid.onRotatePress();
           break;
       }
     });

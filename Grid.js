@@ -7,7 +7,7 @@ class Grid {
     this.columns = columns;
     this.grid = this.createGrid(rows, columns);
     this.newPieceReady = false;
-    // piece shapes
+    this.readyToClear = false;
     this.pieceShapes = {
       square: [
         [4, 0],
@@ -80,8 +80,6 @@ class Grid {
         const newSquare = document.createElement("div");
         newSquare.classList.add("square");
 
-        //console.log(col);
-
         if (col !== null) {
           newSquare.style.backgroundColor = col.color;
           if (col.current) {
@@ -91,25 +89,17 @@ class Grid {
           }
         }
 
-        // Check if the current cell is part of the piece shape
-        /*
-        if (
-          pieceShape &&
-          pieceShape.some(([r, c]) => r === rowIndex && c === colIndex)
-        ) {
-          this.replaceElement(rowIndex, colIndex, "current");
-          newSquare.classList.add("current-piece");
-          newSquare.style.backgroundColor = colorClass;
-        }
-        */
-
         newCol.appendChild(newSquare);
-        //console.log(this.grid);
       });
     });
   }
 
   insertNewPiece(nextPieceType) {
+    if (this.checkForLines()) {
+      this.clearLines();
+      this.moveNonCurrentsDown();
+    }
+
     const pieceShape = this.pieceShapes[nextPieceType];
     const color = this.getColorClass(nextPieceType);
 
@@ -159,8 +149,6 @@ class Grid {
       if (newRowPos >= this.rows || newRowPos < 0) {
         outOfBounds = true;
       }
-
-      console.log(this.grid[newColPos][newRowPos]);
 
       if (
         this.grid[newRowPos] &&
@@ -394,6 +382,134 @@ class Grid {
       }
     });
     return canMove;
+  }
+
+  canRotate(rotatedPieces) {
+    let canRotate = true;
+
+    rotatedPieces.forEach((piece) => {
+      if (piece.position[0] <= 0 || piece.position[0] >= this.columns) {
+        canRotate = false;
+      }
+      if (piece.position[1] <= 0 || piece.position[1] >= this.rows) {
+        canRotate = false;
+      }
+
+      if (this.isOccupied(piece.position[0], piece.position[1])) {
+        canRotate = false;
+      }
+    });
+
+    return canRotate;
+  }
+
+  onRotatePress() {
+    const pieceList = this.getCurrentPiece();
+    if (!pieceList) {
+      return;
+    }
+    const rotatedPieces = this.rotatePieceClockwise(pieceList);
+
+    if (this.canRotate(rotatedPieces)) {
+      pieceList.forEach((piece) => {
+        const colPos = piece.position[0];
+        const rowPos = piece.position[1];
+
+        this.replaceElement(rowPos, colPos, null);
+      });
+      rotatedPieces.forEach((piece) => {
+        this.replaceElement(piece.position[1], piece.position[0], piece);
+      });
+    }
+  }
+
+  rotatePieceClockwise(pieceList) {
+    // Calculate the pivot point (center of the piece)
+    let pivot = pieceList.reduce(
+      (acc, piece) => [acc[0] + piece.position[0], acc[1] + piece.position[1]],
+      [0, 0]
+    );
+    pivot[0] /= pieceList.length;
+    pivot[1] /= pieceList.length;
+
+    // Apply rotation to each block in the piece using the same pivot point
+    let rotatedPieceList = [];
+    for (let piece of pieceList) {
+      // Translate the block coordinates relative to the pivot point
+      let translatedX = piece.position[0] - pivot[0];
+      let translatedY = piece.position[1] - pivot[1];
+
+      // Apply 90-degree clockwise rotation
+      let rotatedX = Math.round(pivot[0] + translatedY); // Round to nearest whole number
+      let rotatedY = Math.round(pivot[1] - translatedX); // Round to nearest whole number
+
+      // Translate back to original position
+      let rotatedPiece = {
+        color: piece.color,
+        position: [rotatedX, rotatedY],
+        current: piece.current,
+        type: piece.type,
+      };
+      rotatedPieceList.push(rotatedPiece);
+    }
+
+    return rotatedPieceList;
+  }
+
+  moveNonCurrentsDown() {
+    for (let i = this.grid.length - 1; i >= 0; i--) {
+      for (let j = this.grid[i].length - 1; j >= 0; j--) {
+        if (this.grid[i][j] !== null) {
+          let x = this.grid[i][j].position[0];
+          let y = this.grid[i][j].position[1];
+          let xN = this.grid[i][j].position[0];
+          let yN = this.grid[i][j].position[1] + 1;
+
+          if (this.grid[i] && this.grid[i][j] && this.grid[i][j] !== null) {
+            while (yN <= this.rows - 1 && this.grid[yN][xN] === null) {
+              const newPiece = this.grid[y][x];
+              this.replaceElement(y, x, null);
+              this.replaceElement(yN, xN, newPiece);
+              x = xN;
+              y = yN;
+              xN = x;
+              yN = y + 1;
+            }
+          }
+        }
+      }
+    }
+    console.log("Done :)");
+  }
+
+  containsNull(array) {
+    for (let element of array) {
+      if (element === null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  checkForLines() {
+    let hasLines = false;
+    // Check if any row in the transposed grid has no null values
+    this.grid.forEach((column) => {
+      if (!this.containsNull(column)) {
+        hasLines = true;
+      }
+    });
+    return hasLines;
+  }
+
+  clearLines() {
+    this.grid.forEach((column) => {
+      if (!this.containsNull(column)) {
+        column.forEach((cell) => {
+          this.replaceElement(cell.position[1], cell.position[0], null);
+        });
+      }
+    });
   }
 
   moveCurrentPieceToDown() {
