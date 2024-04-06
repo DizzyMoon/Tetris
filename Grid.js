@@ -99,7 +99,6 @@ class Grid {
       this.clearLines();
       this.moveNonCurrentsDown();
     }
-
     const pieceShape = this.pieceShapes[nextPieceType];
     const color = this.getColorClass(nextPieceType);
 
@@ -479,7 +478,11 @@ class Grid {
         }
       }
     }
-    console.log("Done :)");
+
+    if (this.checkForLines()) {
+      this.clearLines();
+      this.moveNonCurrentsDown();
+    }
   }
 
   containsNull(array) {
@@ -492,24 +495,48 @@ class Grid {
   }
 
   checkForLines() {
-    let hasLines = false;
-    // Check if any row in the transposed grid has no null values
-    this.grid.forEach((column) => {
-      if (!this.containsNull(column)) {
-        hasLines = true;
+    for (let i = 0; i < this.grid.length; i++) {
+      const row = this.grid[i];
+      let lineCompleted = true;
+      for (let j = 0; j < row.length; j++) {
+        if (row[j] === null) {
+          lineCompleted = false;
+          break; // If any cell in the row is null, move to the next row
+        }
       }
-    });
-    return hasLines;
+      if (lineCompleted) {
+        return true; // If a completed line is found, return true
+      }
+    }
+    return false; // If no completed lines are found, return false
   }
 
   clearLines() {
-    this.grid.forEach((column) => {
-      if (!this.containsNull(column)) {
-        column.forEach((cell) => {
-          this.replaceElement(cell.position[1], cell.position[0], null);
-        });
+    for (let i = 0; i < this.grid.length; i++) {
+      const row = this.grid[i];
+      let lineCompleted = true;
+      for (let j = 0; j < row.length; j++) {
+        if (row[j] === null) {
+          lineCompleted = false;
+          break; // If any cell in the row is null, move to the next row
+        }
       }
-    });
+      if (lineCompleted) {
+        // Clear the completed row
+        for (let j = 0; j < row.length; j++) {
+          this.grid[i][j] = null;
+        }
+        // Move all rows above the completed row down by 1
+        for (let k = i; k > 0; k--) {
+          this.grid[k] = this.grid[k - 1];
+        }
+        // Insert a new empty row at the top
+        this.grid[0] = Array(this.columns).fill(null);
+        // Redraw the grid
+        this.drawGrid("grid-container");
+        break; // Since only one line can be cleared at a time, exit the loop
+      }
+    }
   }
 
   moveCurrentPieceToDown() {
