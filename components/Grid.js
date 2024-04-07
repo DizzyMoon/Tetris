@@ -463,7 +463,8 @@ class Grid {
     if (!pieceList) {
       return;
     }
-    const rotatedPieces = this.rotatePieceClockwise(pieceList);
+    //const rotatedPieces = this.rotatePieceClockwise(pieceList);
+    const rotatedPieces = this.rotate(pieceList, 90);
 
     if (this.canRotate(rotatedPieces)) {
       pieceList.forEach((piece) => {
@@ -478,37 +479,39 @@ class Grid {
     }
   }
 
-  rotatePieceClockwise(pieceList) {
-    // Calculate the pivot point (center of the piece)
-    let pivot = pieceList.reduce(
+  rotate(pieceList, degrees) {
+    let radians = (degrees * Math.PI) / 180; // Convert degrees to radians
+    let rotatedPieces = [];
+
+    let origin = pieceList.reduce(
       (acc, piece) => [acc[0] + piece.position[0], acc[1] + piece.position[1]],
       [0, 0]
     );
-    pivot[0] /= pieceList.length;
-    pivot[1] /= pieceList.length;
+    origin[0] /= pieceList.length;
+    origin[1] /= pieceList.length;
 
-    // Apply rotation to each block in the piece using the same pivot point
-    let rotatedPieceList = [];
-    for (let piece of pieceList) {
-      // Translate the block coordinates relative to the pivot point
-      let translatedX = piece.position[0] - pivot[0];
-      let translatedY = piece.position[1] - pivot[1];
+    for (let i = 0; i < pieceList.length; i++) {
+      let x0 = pieceList[i].position[0] - origin[0];
+      let y0 = pieceList[i].position[1] - origin[1];
 
-      // Apply 90-degree clockwise rotation
-      let rotatedX = Math.round(pivot[0] + translatedY); // Round to nearest whole number
-      let rotatedY = Math.round(pivot[1] - translatedX); // Round to nearest whole number
+      let xPrime = Math.round(
+        x0 * Math.cos(radians) - y0 * Math.sin(radians) + origin[0]
+      );
+      let yPrime = Math.round(
+        x0 * Math.sin(radians) + y0 * Math.cos(radians) + origin[1]
+      );
 
-      // Translate back to original position
-      let rotatedPiece = {
-        color: piece.color,
-        position: [rotatedX, rotatedY],
-        current: piece.current,
-        type: piece.type,
+      const rotatedPiece = {
+        color: pieceList[i].color,
+        position: [xPrime, yPrime],
+        current: pieceList[i].current,
+        type: pieceList[i].type,
       };
-      rotatedPieceList.push(rotatedPiece);
+
+      rotatedPieces.push(rotatedPiece);
     }
 
-    return rotatedPieceList;
+    return rotatedPieces;
   }
 
   moveNonCurrentsDown() {
