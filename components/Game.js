@@ -148,7 +148,7 @@ class Game {
   async checkProgression() {
     if (this.grid.totalClearedLines >= this.level * 10) {
       this.level++;
-      this.tickSpeed = this.tickSpeed - 50;
+      this.tickSpeed = this.tickSpeed - 100;
       this.grid.grid = this.grid.createGrid(this.grid.rows, this.grid.columns);
       await this.levelTransition(); // Wait for levelTransition to complete
       const nextPieceType = this.pieceQueue.getNextPieceType();
