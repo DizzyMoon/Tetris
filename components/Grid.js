@@ -221,6 +221,18 @@ class Grid {
     this.newPieceReady = true;
   }
 
+  removeCurrentPiece() {
+    let found = 0;
+    this.grid.forEach((column) => {
+      column.forEach((piece) => {
+        if (piece !== null && piece.current && found < 4) {
+          this.replaceElement(piece.position[1], piece.position[0], null);
+          found++;
+        }
+      });
+    });
+  }
+
   moveCurrentPieceDown() {
     let pieceList = [];
     this.grid.forEach((row) => {

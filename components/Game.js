@@ -1,5 +1,6 @@
 import Grid from "./Grid.js";
 import PieceQueue from "./PieceQueue.js";
+import PieceStack from "./PieceStack.js";
 
 ("use strict");
 
@@ -13,10 +14,25 @@ class Game {
 
   gameOverSoundPlayed = false;
   crashSoundPlayed = false;
+  nextLevelPlayed = false;
+  hasSaved = false;
 
   grid = new Grid();
   pieceQueue = new PieceQueue();
+  pieceStack = new PieceStack();
   audio = document.getElementById("theme");
+
+  playNextLevel() {
+    if (!this.nextLevelPlayed) {
+      this.audio.src = "./audio/next level sfx.wav";
+      this.audio.loop = false;
+      this.audio.play();
+      this.audio.addEventListener("ended", () => {
+        this.audio.src = null;
+      });
+    }
+    this.nextLevelPlayed = true;
+  }
 
   stopTheme() {
     this.audio.pause();
@@ -33,7 +49,6 @@ class Game {
       this.audio.src = "./audio/crash sfx.mp3";
       this.audio.loop = false;
       this.audio.play();
-      this.audio.loop = false;
       this.audio.addEventListener("ended", () => {
         this.audio.src = null;
       });
@@ -81,6 +96,8 @@ class Game {
     this.pieceQueue.dequeue();
     this.pieceQueue.drawQueue();
 
+    this.pieceStack.drawStack();
+
     this.gameLoop = setInterval(() => {
       if (!this.grid.gameOver) {
         this.update();
@@ -109,33 +126,55 @@ class Game {
     }
   }
 
-  update() {
+  async update() {
     this.grid.drawGrid("grid-container");
     this.grid.moveCurrentPieceDown();
     this.updateStats();
 
-    let pointsToAdd = 0;
+    await this.checkProgression(); // Wait for checkProgression to complete
+
     if (this.grid.newPieceReady) {
       const nextPieceType = this.pieceQueue.getNextPieceType();
-      pointsToAdd = this.grid.insertNewPiece(nextPieceType);
+      let pointsToAdd = this.grid.insertNewPiece(nextPieceType);
       this.pieceQueue.dequeue();
       this.pieceQueue.drawQueue();
       this.grid.newPieceReady = false;
+
+      this.calculatePoints(pointsToAdd);
+      this.hasSaved = false;
     }
-
-    this.calculatePoints(pointsToAdd);
-
-    this.checkProgression();
   }
 
-  checkProgression() {
-    if (this.grid.totalClearedLines > this.level * 10) {
+  async checkProgression() {
+    if (this.grid.totalClearedLines >= this.level * 10) {
       this.level++;
       this.tickSpeed = this.tickSpeed - 50;
       this.grid.grid = this.grid.createGrid(this.grid.rows, this.grid.columns);
+      await this.levelTransition(); // Wait for levelTransition to complete
       const nextPieceType = this.pieceQueue.getNextPieceType();
       this.grid.insertNewPiece(nextPieceType);
     }
+  }
+
+  async levelTransition() {
+    this.stopTheme();
+    this.playNextLevel();
+    const levelBanner = document.getElementById("level-banner");
+    let levelTexts = document.getElementsByClassName("level-banner-text");
+    let levelText;
+    if (levelTexts.length > 0) {
+      levelText = levelTexts[0];
+      levelText.innerHTML = "Level: " + this.level;
+      levelBanner.classList.remove("hidden");
+      await this.delay(3000);
+      levelBanner.classList.add("hidden");
+      this.nextLevelPlayed = false;
+      this.playTheme();
+    }
+  }
+
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   initStats() {
@@ -193,8 +232,34 @@ class Game {
         case "ArrowUp":
           this.grid.onRotatePress();
           break;
+        case "c":
+          this.savePiece();
+          break;
       }
     });
+  }
+
+  savePiece() {
+    if (!this.hasSaved) {
+      if (this.pieceStack.isEmpty()) {
+        const currentPieceType = this.grid.getCurrentPiece()[0].type;
+        this.pieceStack.add(currentPieceType);
+        this.pieceStack.drawStack();
+        this.grid.removeCurrentPiece();
+        const nextPieceType = this.pieceQueue.getNextPieceType();
+        this.grid.insertNewPiece(nextPieceType);
+        this.pieceQueue.dequeue();
+        this.pieceQueue.drawQueue();
+      } else {
+        const currentPieceType = this.grid.getCurrentPiece()[0].type;
+        this.grid.removeCurrentPiece();
+        this.grid.insertNewPiece(this.pieceStack.peek());
+        this.pieceStack.remove();
+        this.pieceStack.add(currentPieceType);
+        this.pieceStack.drawStack();
+      }
+      this.hasSaved = true;
+    }
   }
 }
 

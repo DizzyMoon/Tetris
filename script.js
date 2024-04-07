@@ -1,4 +1,4 @@
-import Game from "./Game.js";
+import Game from "./components/Game.js";
 
 ("use strict");
 
